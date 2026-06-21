@@ -1,0 +1,9 @@
+<Solution>
+  <Folder Name="/Elementos de la solución/">
+    <File Path="dockerfile" />
+  </Folder>
+  <Project Path="CreatorHub.API/CreatorHub.API.csproj" />
+  <Project Path="CreatorHub.Domain/CreatorHub.Domain.csproj" />
+  <Project Path="CreatorHub.Infrastructure/CreatorHub.Infrastructure.csproj" />
+  <Project Path="CreatorHub.Application/CreatorHub.Application.csproj" />
+</Solution>
