@@ -6,6 +6,7 @@ import Empresas from "./pages/Empresas"
 import Login from "./pages/Login"
 import Navbar from "./components/Navbar"
 import RutaProtegida from "./components/RutaProtegida"
+import NotFound from "./pages/NotFound"
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
             <Admin />
           </RutaProtegida>
         } />
+        <Route path="*" element={<NotFound />} />
       </Routes>
     </BrowserRouter>
   )

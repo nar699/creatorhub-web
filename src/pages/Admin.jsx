@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react"
-import { obtenerCreadores, cambiarEstadoCreador, obtenerEmpresas, cambiarEstadoEmpresa } from "../services/api"
+import { obtenerCreadores, cambiarEstadoCreador, eliminarCreador, obtenerEmpresas, cambiarEstadoEmpresa, eliminarEmpresa } from "../services/api"
 
 export default function Admin() {
   const [pestana, setPestana] = useState("creadores")
@@ -45,7 +45,25 @@ export default function Admin() {
       alert("Error al cambiar el estado")
     }
   }
+const handleEliminarCreador = async (id) => {
+  if (!confirm("¿Seguro que quieres eliminar este creador?")) return
+  try {
+    await eliminarCreador(id)
+    setCreadores(prev => prev.filter(c => c.id !== id))
+  } catch {
+    alert("Error al eliminar")
+  }
+}
 
+const handleEliminarEmpresa = async (id) => {
+  if (!confirm("¿Seguro que quieres eliminar esta empresa?")) return
+  try {
+    await eliminarEmpresa(id)
+    setEmpresas(prev => prev.filter(e => e.id !== id))
+  } catch {
+    alert("Error al eliminar")
+  }
+}
   const creadoresFiltrados = creadores.filter(c => {
     const coincideBusqueda =
       c.nombre.toLowerCase().includes(busqueda.toLowerCase()) ||
@@ -220,6 +238,21 @@ export default function Admin() {
               <p style={{ fontSize: "0.75rem", color: "var(--color-text-muted)", whiteSpace: "nowrap" }}>
                 {new Date(creador.fechaRegistro).toLocaleDateString("es-ES", { timeZone: "Europe/Madrid" })}
               </p>
+              <button
+    onClick={() => handleEliminarCreador(creador.id)}
+    style={{
+      background: "none",
+      border: "1px solid #fca5a5",
+      borderRadius: "var(--radius)",
+      padding: "0.3rem 0.75rem",
+      cursor: "pointer",
+      color: "#ef4444",
+      fontSize: "0.75rem",
+      transition: "var(--transition)"
+    }}
+  >
+    Eliminar
+  </button>
             </div>
           ))}
         </div>
@@ -286,6 +319,21 @@ export default function Admin() {
               <p style={{ fontSize: "0.75rem", color: "var(--color-text-muted)", whiteSpace: "nowrap" }}>
                 {new Date(empresa.fechaSolicitud).toLocaleDateString("es-ES", { timeZone: "Europe/Madrid" })}
               </p>
+              <button
+    onClick={() => handleEliminarEmpresa(empresa.id)}
+    style={{
+      background: "none",
+      border: "1px solid #fca5a5",
+      borderRadius: "var(--radius)",
+      padding: "0.3rem 0.75rem",
+      cursor: "pointer",
+      color: "#ef4444",
+      fontSize: "0.75rem",
+      transition: "var(--transition)"
+    }}
+  >
+    Eliminar
+  </button>
             </div>
           ))}
         </div>
