@@ -1,5 +1,6 @@
 import { useState } from "react"
 import { registrarCreador } from "../services/api"
+import { useNavigate } from "react-router-dom"
 
 const NICHOS = [
   "Moda", "Belleza", "Gaming", "Cocina", "Viajes",
@@ -14,15 +15,16 @@ const PLATAFORMAS = [
 ]
 
 export default function Registro() {
+  const navigate = useNavigate()
   const [form, setForm] = useState({
     nombre: "",
     apellido: "",
     email: "",
+    password: "",
     nichos: [],
     redesSociales: [{ plataforma: "Instagram", url: "" }]
   })
   const [enviando, setEnviando] = useState(false)
-  const [enviado, setEnviado] = useState(false)
   const [error, setError] = useState("")
 
   const handleChange = (e) => {
@@ -70,51 +72,18 @@ export default function Registro() {
     }
     setEnviando(true)
     try {
-      await registrarCreador(form)
-      setEnviado(true)
-    } catch {
-      setError("Hubo un problema al enviar. Inténtalo de nuevo.")
+      const datos = await registrarCreador(form)
+      localStorage.setItem("creadorToken", datos.token)
+      localStorage.setItem("creadorCuenta", JSON.stringify({
+        cuentaId: datos.cuentaId,
+        email: datos.email
+      }))
+      navigate("/dashboard")
+    } catch (err) {
+      setError(err.message || "Hubo un problema al registrarte.")
     } finally {
       setEnviando(false)
     }
-  }
-
-  if (enviado) {
-    return (
-      <div style={{
-        minHeight: "calc(100vh - 64px)",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
-        textAlign: "center",
-        padding: "2rem",
-        background: "var(--gradient-section)"
-      }}>
-        <div style={{
-          width: "80px", height: "80px",
-          background: "var(--gradient-button)",
-          borderRadius: "50%",
-          display: "flex", alignItems: "center", justifyContent: "center",
-          fontSize: "2.5rem", color: "#fff",
-          marginBottom: "1.5rem",
-          boxShadow: "var(--shadow-lg)"
-        }}>✓</div>
-        <h2 style={{
-          fontSize: "var(--font-size-2xl)",
-          fontWeight: "700",
-          marginBottom: "0.75rem",
-          background: "var(--gradient-button)",
-          WebkitBackgroundClip: "text",
-          WebkitTextFillColor: "transparent"
-        }}>
-          ¡Bienvenido a CreatorHub!
-        </h2>
-        <p style={{ color: "var(--color-text-secondary)", maxWidth: "400px", lineHeight: "1.7" }}>
-          Tu perfil está en revisión. Pronto nos pondremos en contacto contigo con propuestas de colaboración.
-        </p>
-      </div>
-    )
   }
 
   return (
@@ -125,7 +94,6 @@ export default function Registro() {
     }}>
       <div style={{ maxWidth: "720px", margin: "0 auto" }}>
 
-        {/* Cabecera */}
         <div style={{ textAlign: "center", marginBottom: "3rem" }}>
           <span style={{
             display: "inline-block",
@@ -155,7 +123,6 @@ export default function Registro() {
           </p>
         </div>
 
-        {/* Formulario */}
         <form onSubmit={handleSubmit}>
 
           {/* Sección 1 — Datos personales */}
@@ -199,6 +166,20 @@ export default function Registro() {
                 style={inputStyle}
               />
             </div>
+
+            <div style={{ marginTop: "1rem" }}>
+              <label style={labelStyle}>Contraseña</label>
+              <input
+                name="password"
+                type="password"
+                value={form.password}
+                onChange={handleChange}
+                required
+                placeholder="Mínimo 8 caracteres"
+                minLength={8}
+                style={inputStyle}
+              />
+            </div>
           </div>
 
           {/* Sección 2 — Nichos */}
@@ -225,11 +206,9 @@ export default function Registro() {
                     cursor: "pointer",
                     transition: "var(--transition)",
                     fontWeight: form.nichos.includes(nicho) ? "600" : "400",
-                    background: form.nichos.includes(nicho)
-                      ? "var(--gradient-button)" : "var(--color-bg)",
+                    background: form.nichos.includes(nicho) ? "var(--gradient-button)" : "var(--color-bg)",
                     color: form.nichos.includes(nicho) ? "#fff" : "var(--color-text-secondary)",
-                    borderColor: form.nichos.includes(nicho)
-                      ? "transparent" : "var(--color-border)",
+                    borderColor: form.nichos.includes(nicho) ? "transparent" : "var(--color-border)",
                     boxShadow: form.nichos.includes(nicho) ? "var(--shadow-md)" : "none"
                   }}
                 >
@@ -314,8 +293,7 @@ export default function Registro() {
                   cursor: "pointer",
                   color: "var(--color-primary)",
                   fontSize: "var(--font-size-sm)",
-                  fontWeight: "500",
-                  transition: "var(--transition)"
+                  fontWeight: "500"
                 }}
               >
                 + Añadir red social
@@ -354,8 +332,20 @@ export default function Registro() {
               boxShadow: enviando ? "none" : "var(--shadow-lg)"
             }}
           >
-            {enviando ? "Enviando..." : "Crear mi perfil →"}
+            {enviando ? "Creando tu cuenta..." : "Crear mi perfil →"}
           </button>
+
+          <p style={{
+            textAlign: "center",
+            marginTop: "1.5rem",
+            fontSize: "var(--font-size-sm)",
+            color: "var(--color-text-secondary)"
+          }}>
+            ¿Ya tienes cuenta?{" "}
+            <a href="/login" style={{ color: "var(--color-primary)", fontWeight: "500" }}>
+              Inicia sesión
+            </a>
+          </p>
         </form>
       </div>
     </main>
@@ -372,10 +362,8 @@ const seccionStyle = {
 }
 
 const seccionHeaderStyle = {
-  display: "flex",
-  alignItems: "center",
-  gap: "1rem",
-  marginBottom: "1.5rem"
+  display: "flex", alignItems: "center",
+  gap: "1rem", marginBottom: "1.5rem"
 }
 
 const numeroBadgeStyle = {
@@ -384,14 +372,12 @@ const numeroBadgeStyle = {
   background: "var(--gradient-button)",
   display: "flex", alignItems: "center", justifyContent: "center",
   color: "#fff", fontWeight: "700", fontSize: "var(--font-size-sm)",
-  flexShrink: 0,
-  boxShadow: "var(--shadow-md)"
+  flexShrink: 0, boxShadow: "var(--shadow-md)"
 }
 
 const seccionTituloStyle = {
   fontSize: "var(--font-size-lg)",
-  fontWeight: "700",
-  marginBottom: "0.2rem"
+  fontWeight: "700", marginBottom: "0.2rem"
 }
 
 const seccionDescStyle = {

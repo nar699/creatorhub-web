@@ -8,7 +8,7 @@ export default function Admin() {
   const [cargando, setCargando] = useState(true)
   const [busqueda, setBusqueda] = useState("")
   const [filtroNicho, setFiltroNicho] = useState("")
-
+  const [filtroPerfilCompleto, setFiltroPerfilCompleto] = useState("")
   useEffect(() => {
     cargarDatos()
   }, [])
@@ -65,13 +65,18 @@ const handleEliminarEmpresa = async (id) => {
   }
 }
   const creadoresFiltrados = creadores.filter(c => {
-    const coincideBusqueda =
-      c.nombre.toLowerCase().includes(busqueda.toLowerCase()) ||
-      c.apellido.toLowerCase().includes(busqueda.toLowerCase()) ||
-      c.email.toLowerCase().includes(busqueda.toLowerCase())
-    const coincideNicho = filtroNicho ? c.nichos.includes(filtroNicho) : true
-    return coincideBusqueda && coincideNicho
-  })
+  const coincideBusqueda =
+    c.nombre.toLowerCase().includes(busqueda.toLowerCase()) ||
+    c.apellido.toLowerCase().includes(busqueda.toLowerCase()) ||
+    c.email.toLowerCase().includes(busqueda.toLowerCase())
+  const coincideNicho = filtroNicho ? c.nichos.includes(filtroNicho) : true
+  const coincidePerfilCompleto = filtroPerfilCompleto === "completo"
+    ? c.perfilCompleto
+    : filtroPerfilCompleto === "incompleto"
+    ? !c.perfilCompleto
+    : true
+  return coincideBusqueda && coincideNicho && coincidePerfilCompleto
+})
 
   const empresasFiltradas = empresas.filter(e =>
     e.nombreEmpresa.toLowerCase().includes(busqueda.toLowerCase()) ||
@@ -149,6 +154,22 @@ const handleEliminarEmpresa = async (id) => {
             outline: "none"
           }}
         />
+        <select
+          value={filtroPerfilCompleto}
+          onChange={(e) => setFiltroPerfilCompleto(e.target.value)}
+          style={{
+            padding: "0.625rem 0.875rem",
+            borderRadius: "var(--radius)",
+            border: "1px solid var(--color-border)",
+            fontSize: "var(--font-size-sm)",
+            background: "var(--color-bg)",
+            outline: "none"
+          }}
+        >
+          <option value="">Todos los perfiles</option>
+          <option value="completo">Perfil completo</option>
+          <option value="incompleto">Perfil incompleto</option>
+        </select>
         {pestana === "creadores" && (
           <select
             value={filtroNicho}
@@ -224,6 +245,61 @@ const handleEliminarEmpresa = async (id) => {
                       fontSize: "0.75rem", color: "var(--color-text-secondary)"
                     }}>{n}</span>
                   ))}
+                </div>
+                {/* Tipos de contenido */}
+                {creador.tiposContenido?.length > 0 && (
+                  <div style={{ marginBottom: "0.75rem" }}>
+                    <p style={{ fontSize: "0.7rem", color: "var(--color-text-muted)", marginBottom: "0.4rem", fontWeight: "500" }}>
+                      CONTENIDO UGC
+                    </p>
+                    <div style={{ display: "flex", flexWrap: "wrap", gap: "0.4rem" }}>
+                      {creador.tiposContenido.map(t => (
+                        <span key={t} style={{
+                          padding: "0.2rem 0.75rem",
+                          borderRadius: "999px",
+                          background: "rgba(124, 58, 237, 0.08)",
+                          border: "1px solid rgba(124, 58, 237, 0.2)",
+                          fontSize: "0.75rem",
+                          color: "var(--color-primary)"
+                        }}>{t}</span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Idiomas */}
+                {creador.idiomas?.length > 0 && (
+                  <div style={{ marginBottom: "0.75rem" }}>
+                    <p style={{ fontSize: "0.7rem", color: "var(--color-text-muted)", marginBottom: "0.4rem", fontWeight: "500" }}>
+                      IDIOMAS
+                    </p>
+                    <div style={{ display: "flex", flexWrap: "wrap", gap: "0.4rem" }}>
+                      {creador.idiomas.map(i => (
+                        <span key={i} style={{
+                          padding: "0.2rem 0.75rem",
+                          borderRadius: "999px",
+                          background: "rgba(236, 72, 153, 0.08)",
+                          border: "1px solid rgba(236, 72, 153, 0.2)",
+                          fontSize: "0.75rem",
+                          color: "var(--color-secondary)"
+                        }}>{i}</span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Perfil completo badge */}
+                <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginTop: "0.5rem" }}>
+                  <span style={{
+                    fontSize: "0.7rem",
+                    padding: "0.2rem 0.6rem",
+                    borderRadius: "999px",
+                    background: creador.perfilCompleto ? "#dcfce7" : "#fef3c7",
+                    color: creador.perfilCompleto ? "#166534" : "#92400e",
+                    fontWeight: "500"
+                  }}>
+                    {creador.perfilCompleto ? "✓ Perfil completo" : "⚠ Perfil incompleto"}
+                  </span>
                 </div>
                 <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem" }}>
                   {creador.redesSociales.map((red, i) => (

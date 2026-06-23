@@ -2,7 +2,7 @@ import { useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { login } from "../services/api"
 
-export default function Login() {
+export default function LoginAdmin() {
   const [form, setForm] = useState({ email: "", password: "" })
   const [error, setError] = useState("")
   const [cargando, setCargando] = useState(false)
